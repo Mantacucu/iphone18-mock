@@ -59,6 +59,7 @@ body{display:flex;justify-content:center;align-items:center;min-height:100vh}
 .bubble.other{background:#fff}
 .bubble.me{background:#95EC69}
 .wx-note{align-self:center;background:#e2e2e2;color:#666;font-size:12px;padding:6px 10px;border-radius:6px;max-width:92%}
+.wx-time-divider{align-self:center;color:#999;font-size:12px;margin:4px 0}
 .wx-input{height:50px;flex-shrink:0;background:#F7F7F7;border-top:1px solid #d9d9d9;display:flex;align-items:center;gap:10px;padding:0 12px}
 .wx-input input{flex:1;height:32px;border:none;border-radius:6px;background:#fff;padding:0 10px;font-size:14px;outline:none}
 .wx-send{color:#07C160;font-size:14px;font-weight:500;flex-shrink:0}
@@ -171,30 +172,34 @@ const wxData={
    coverBg:"linear-gradient(180deg,#8FA6BA 0%,#C9D6DE 45%,#EDEFF0 100%)",
    groups:["皇上可见","家人可见","后宫可见","永寿宫可见","不给皇后看","不给祺贵人看","不给安陵容看"]},
  pinned:[
-  {id:"jinxi",name:"槿汐",avatarBg:"#8FBFA3",avatarE:"🍵",
-   msgs:[["me","午后的茶换成六安瓜片。"],["me","弘曕今日咳了两声，让人留意。"],["me","皇上今晚若来，提前半个时辰告诉我。"],["me","那件青色衣裳收起来。"],["me","苏公公那边可有回话？"]],
+  {id:"jinxi",name:"槿汐",avatarImg:"avatars/jinxi.jpg",avatarBg:"#8FBFA3",avatarE:"🍵",
+   msgs:[["time","2019年9月16日 06:48"],["other","小主今日第一次去请安，衣裳已经备好。"],["me","不必太过鲜亮。"],["other","明白，选了月白色。"],
+   ["time","2020年11月3日 23:17"],["other","小主今晚一直没有用膳。"],["me","吃不下。"],["other","奴婢让厨房温着，您夜里若醒了，再吃一点。"],
+   ["time","2022年3月29日 14:06"],["me","你可以留在宫里，不必陪我出去。"],["other","娘娘在哪里，槿汐便在哪里。"],
+   ["time","2024年10月12日 05:54"],["other","车已经到了。孩子们还睡着。"],["me","不要叫醒他们。"],["other","娘娘准备好了吗？"],["me","走吧。"],
+   ["time","2025年2月8日 22:13"],["other","明日请安的名单已经发给您。"],["me","看过了。祺贵人也去？"],["other","是。皇后娘娘特意让人通知的。"],["me","知道了。"]],
    note:"暗语（仅甄嬛可见）：茶凉了＝暂缓 / 花房送错了花＝有眼线 / 六阿哥睡下了＝可谈私事 / 旧衣已处理＝记录已清除 / 今日风大＝只发文字"},
-  {id:"meizhuang",name:"眉姐姐",avatarBg:"#C98FA0",avatarE:"🪷",
+  {id:"meizhuang",name:"眉姐姐",avatarImg:"avatars/meizhuang.jpg",avatarBg:"#C98FA0",avatarE:"🪷",
    msgs:[["me","惠宁今天肯喝药了吗？"],["me","我让厨房炖了藕粉桂花糖糕，晚些给你送去。"],["other","[视频] 女儿的视频"],["me","你别总劝我忍，你自己倒比谁都倔。"],["me","今日见你气色不好，可是昨夜又没睡？"],["other","温实初今天讲话又像病历。"]],
    note:"不说真名：那边＝皇后 / 景仁宫那位＝安陵容 / 从前唱歌的妹妹＝安陵容 / 今日来过的人＝皇上"},
-  {id:"huangshang",name:"皇上",avatarBg:"#C9A24B",avatarE:"👑",
+  {id:"huangshang",name:"皇上",avatarImg:"avatars/huangshang.jpg",avatarBg:"#C9A24B",avatarE:"👑",
    msgs:[["other","弘曕今日如何？"],["me","一切都好，皇上勿念。"],["other","晚膳可用了？"],["me","永寿宫已备下晚膳。"],["other","你昨日说的那本书，朕命人送去了。"],["me","谢皇上惦念。"],["other","怎么不回话？"],["me","臣妾刚陪孩子，未曾看见。"],["other","朕晚些过去。"]]},
-  {id:"supeisheng",name:"苏公公",avatarBg:"#9AA5B1",avatarE:"🎎",
+  {id:"supeisheng",name:"苏公公",avatarImg:"avatars/supeisheng.jpg",avatarBg:"#9AA5B1",avatarE:"🎎",
    msgs:[["me","皇上今日议事可还顺利？"],["other","娘娘放心，约莫酉时能结束。"],["me","有劳公公。"],["other","槿汐托我问您，旧疾可好些了？"]],
    note:"苏培盛的暗语：今日可早些歇息＝皇上不会来 / 天气不错＝事情顺利"}
  ],
  others:[
-  {id:"duanfei",name:"端妃娘娘",avatarBg:"#B9C6A0",avatarE:"🌸",msgs:[["other","今日席上那碟杏仁酥不错，只是有些人不宜多用。"]]},
-  {id:"jingfei",name:"敬妃姐姐",avatarBg:"#E3B5C6",avatarE:"🎀",msgs:[["other","[视频] 胧月练琴"],["me","劳姐姐费心。"],["other","[视频] 胧月画画"],["me","她今日弹得比前几日稳了。"],["me","夜里降温，别让她贪凉。"]]},
-  {id:"wenshichu",name:"温医生",avatarBg:"#8FA6B8",avatarE:"💊",msgs:[["other","这是眉庄今天的用药记录。"],["me","收到。"],["other","弘曕的过敏记录更新了，注意香料。"],["me","知道了。"]]},
-  {id:"huanbi",name:"浣碧",avatarBg:"#A98FBF",avatarE:"👗",msgs:[["other","[图片] 新买的衣服"],["other","[图片] 王府的花"],["other","王爷这几日在外面忙。"],["other","姐姐觉得这支簪子好看吗？"],["me","（这段话打了很久，最后删掉了）"],["me","照顾好自己。"]]},
+  {id:"duanfei",name:"端妃娘娘",avatarImg:"avatars/duanfei.jpg",avatarBg:"#B9C6A0",avatarE:"🌸",msgs:[["other","今日席上那碟杏仁酥不错，只是有些人不宜多用。"]]},
+  {id:"jingfei",name:"敬妃姐姐",avatarImg:"avatars/jingfei.jpg",avatarBg:"#E3B5C6",avatarE:"🎀",msgs:[["other","[视频] 胧月练琴"],["me","劳姐姐费心。"],["other","[视频] 胧月画画"],["me","她今日弹得比前几日稳了。"],["me","夜里降温，别让她贪凉。"]]},
+  {id:"wenshichu",name:"温医生",avatarImg:"avatars/wenshichu.jpg",avatarBg:"#8FA6B8",avatarE:"💊",msgs:[["other","这是眉庄今天的用药记录。"],["me","收到。"],["other","弘曕的过敏记录更新了，注意香料。"],["me","知道了。"]]},
+  {id:"huanbi",name:"浣碧",avatarImg:"avatars/huanbi.jpg",avatarBg:"#A98FBF",avatarE:"👗",msgs:[["other","[图片] 新买的衣服"],["other","[图片] 王府的花"],["other","王爷这几日在外面忙。"],["other","姐姐觉得这支簪子好看吗？"],["me","（这段话打了很久，最后删掉了）"],["me","照顾好自己。"]]},
   {id:"yuyao",name:"玉娆",avatarBg:"#E8A5A0",avatarE:"🎈",msgs:[["other","姐姐，家里又叫我去见不认识的人。"],["me","我已经安排车接你了。"],["other","这裙子是不是太老气了？"],["other","你别总不回消息，我知道你明明看见了。"],["me","[转账] ¥200.00"],["other","我给孩子们买了礼物，你别嫌幼稚。"],["me","朋友圈先别公开行程，注意安全。"]]},
   {id:"shiqi",name:"十七",noAvatar:true,msgs:[["other","平安。"],["other","已到。"],["other","[语音 0:08]"],["other","勿回。"],["other","东西收到了。"],["me","照顾好自己。"]]}
  ],
  danger:[
-  {id:"huanghou",name:"皇后娘娘",avatarBg:"#B23B3B",avatarE:"👑",msgs:[["other","妹妹回宫不久，若有不习惯之处，尽可告诉本宫。"],["other","明日众人小聚，妹妹记得带弘曕过来。"],["other","听闻六阿哥有些不适，本宫十分挂心。"],["me","多谢皇后娘娘关怀，臣妾一切都好。"]]},
-  {id:"anlingrong",name:"安嫔",avatarBg:"#7A6BA0",avatarE:"🎵",msgs:[["other","[图片] 新做的香"],["other","姐姐还记得我们刚进宫时住在一起的日子吗？"],["me","自然记得。妹妹好生保重。"]]},
-  {id:"qiguiren",name:"祺贵人",avatarBg:"#B08A5E",avatarE:"👁️",msgs:[["other","娘娘今日的衣服真好看，是皇上新赏的吗？"],["me","嗯。"],["other","听说娘娘从前在宫外住了很久？"],["other","六阿哥长得真像娘娘。"],["me","多谢。"]]}
+  {id:"huanghou",name:"皇后娘娘",avatarImg:"avatars/huanghou.jpg",avatarBg:"#B23B3B",avatarE:"👑",msgs:[["other","妹妹回宫不久，若有不习惯之处，尽可告诉本宫。"],["other","明日众人小聚，妹妹记得带弘曕过来。"],["other","听闻六阿哥有些不适，本宫十分挂心。"],["me","多谢皇后娘娘关怀，臣妾一切都好。"]]},
+  {id:"anlingrong",name:"安嫔",avatarImg:"avatars/anlingrong.jpg",avatarBg:"#7A6BA0",avatarE:"🎵",msgs:[["other","[图片] 新做的香"],["other","姐姐还记得我们刚进宫时住在一起的日子吗？"],["me","自然记得。妹妹好生保重。"]]},
+  {id:"qiguiren",name:"祺贵人",avatarImg:"avatars/qiguiren.jpg",avatarBg:"#B08A5E",avatarE:"👁️",msgs:[["other","娘娘今日的衣服真好看，是皇上新赏的吗？"],["me","嗯。"],["other","听说娘娘从前在宫外住了很久？"],["other","六阿哥长得真像娘娘。"],["me","多谢。"]]}
  ],
  groups:[
   {id:"yongshou",name:"永寿宫工作群 (12)",avatarBg:"#9AA5B1",avatarE:"🏠",notice:"孩子的照片不得外传；来访人员提前登记；未经确认的食品、药物、香薰不得带入。",msgs:[["me","知道了。"],["me","按槿汐说的办。"],["me","名单私发给我。"],["me","这件事不要在群里讨论。"]]},
@@ -222,6 +227,7 @@ let wxTab="chat",wxChat=null;
 function wxFindChat(id){return [...wxData.pinned,...wxData.others,...wxData.danger,...wxData.groups].find(c=>c.id===id);}
 function wxAvatarHTML(c,size){
   size=size||44;
+  if(c.avatarImg)return `<div class="wx-avatar" style="width:${size}px;height:${size}px;background-image:url('${c.avatarImg}');background-size:cover"></div>`;
   if(c.noAvatar)return `<div class="wx-avatar" style="width:${size}px;height:${size}px;background:#ccc"></div>`;
   return `<div class="wx-avatar" style="width:${size}px;height:${size}px;background:${c.avatarBg}">${c.avatarE}</div>`;
 }
@@ -233,7 +239,7 @@ function wxListHTML(){
 }
 function wxChatHTML(c){
   const me={avatarBg:wxData.profile.avatarBg,avatarE:wxData.profile.avatarE};
-  const bubbles=c.msgs.map(([s,t])=>`<div class="msg-row ${s}">${wxAvatarHTML(s==='me'?me:c,36)}<div class="bubble ${s}">${t}</div></div>`).join("");
+  const bubbles=c.msgs.map(([s,t])=>s==='time'?`<div class="wx-time-divider">${t}</div>`:`<div class="msg-row ${s}">${wxAvatarHTML(s==='me'?me:c,36)}<div class="bubble ${s}">${t}</div></div>`).join("");
   const notice=c.notice?`<div class="wx-note">群公告：${c.notice}</div>`:"";
   const note=c.note?`<div class="wx-note">${c.note}</div>`:"";
   return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span>${c.name}</div>
