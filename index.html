@@ -63,10 +63,18 @@ body{display:flex;justify-content:center;align-items:center;min-height:100vh}
 .wx-input input{flex:1;height:32px;border:none;border-radius:6px;background:#fff;padding:0 10px;font-size:14px;outline:none}
 .wx-send{color:#07C160;font-size:14px;font-weight:500;flex-shrink:0}
 .wx-profile{padding:20px;background:#fff;display:flex;gap:14px;align-items:center}
-.wx-cover{height:130px;display:flex;align-items:center;justify-content:center;font-size:34px}
+.wx-cover{height:160px;position:relative}
+.wx-cover .who{position:absolute;bottom:10px;right:14px;display:flex;align-items:center;gap:8px}
+.wx-cover .who span{color:#fff;font-size:15px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.4)}
 .wx-groupbox{background:#fff;margin:10px 14px;border-radius:8px;padding:10px 12px;font-size:12px;color:#666}
+.wx-limit-note{text-align:center;color:#999;font-size:12px;padding:16px 0}
 .wx-post{background:#fff;padding:14px;border-bottom:1px solid #eee}
 .wx-post .img{height:110px;border-radius:6px;background:linear-gradient(160deg,#ddd,#eee);display:flex;align-items:center;justify-content:center;font-size:32px;color:#999;margin-bottom:8px}
+.wx-profile-hd{padding:20px;background:#fff;display:flex;gap:14px;align-items:center;border-bottom:8px solid #EDEDED}
+.wx-profile-hd .pname{font-size:19px;font-weight:600}
+.wx-profile-hd .pmeta{color:#999;font-size:12.5px;margin-top:4px}
+.wx-row{background:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f0f0f0}
+.wx-cover-mini{width:44px;height:44px;border-radius:4px}
 </style></head>
 <body>
 <div class="phone"><div class="screen">
@@ -152,7 +160,9 @@ function openApp(kind,i){
 function closeApp(){document.getElementById("appview").classList.add("hidden");}
 
 const wxData={
- profile:{name:"甄嬛",sign:"静水流深。",avatarBg:"#EFE6D8",avatarE:"🌸",
+ profile:{name:"甄嬛",wxid:"niluoxingke",sign:"人生如逆旅，我亦是行人。",region:"北京",
+   avatarBg:"linear-gradient(160deg,#F3D9DE,#DCEAD8)",avatarE:"🌸",
+   coverBg:"linear-gradient(180deg,#8FA6BA 0%,#C9D6DE 45%,#EDEFF0 100%)",
    groups:["皇上可见","家人可见","后宫可见","永寿宫可见","不给皇后看","不给祺贵人看","不给安陵容看"]},
  pinned:[
   {id:"jinxi",name:"槿汐",avatarBg:"#8FBFA3",avatarE:"🍵",
@@ -220,19 +230,35 @@ function wxChatHTML(c){
 function wxMomentsHTML(){
   return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span>朋友圈</div>
   <div class="wx-body">
-  <div class="wx-cover" style="background:linear-gradient(160deg,#c9d3d8,#eef1f2)">❄️🧱</div>
+  <div class="wx-cover" style="background:${wxData.profile.coverBg}">
+    <div class="who">${wxAvatarHTML({avatarBg:wxData.profile.avatarBg,avatarE:wxData.profile.avatarE},40)}<span>${wxData.profile.name}</span></div>
+  </div>
   <div class="wx-groupbox">朋友圈分组：${wxData.profile.groups.join(" / ")}</div>
   ${wxData.moments.map(m=>`<div class="wx-post">${m.img?`<div class="img">🖼️</div>`:""}<div class="cap">${m.cap}</div></div>`).join("")}
+  <div class="wx-limit-note">只显示最近半年的朋友圈</div>
+  </div>`;
+}
+function wxProfileHTML(){
+  return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span></div>
+  <div class="wx-body">
+  <div class="wx-profile-hd">
+    <div class="wx-avatar" style="width:64px;height:64px;font-size:32px;background:${wxData.profile.avatarBg}">${wxData.profile.avatarE}</div>
+    <div class="wx-profile-info">
+      <div class="pname">${wxData.profile.name}</div>
+      <div class="pmeta">微信号：${wxData.profile.wxid}</div>
+      <div class="pmeta">地区：${wxData.profile.region}</div>
+    </div>
+  </div>
+  <div class="wx-row" onclick="wxOpenMoments()"><span>朋友圈</span><div class="wx-cover-mini" style="background:${wxData.profile.coverBg}"></div></div>
   </div>`;
 }
 function wxMeHTML(){
   return `<div class="wx-nav">我</div>
   <div class="wx-body">
-  <div class="wx-profile" onclick="wxOpenMoments()">
+  <div class="wx-profile" onclick="wxOpenProfile()">
     <div class="wx-avatar" style="width:60px;height:60px;font-size:30px;background:${wxData.profile.avatarBg}">${wxData.profile.avatarE}</div>
-    <div><div style="font-size:18px;font-weight:600">${wxData.profile.name}</div><div style="color:#999;font-size:13px;margin-top:4px">${wxData.profile.sign}</div></div>
+    <div><div style="font-size:18px;font-weight:600">${wxData.profile.name}</div><div style="color:#999;font-size:13px;margin-top:4px">微信号：${wxData.profile.wxid}</div></div>
   </div>
-  <div class="wx-groupbox">点击头像区域查看朋友圈</div>
   </div>`;
 }
 function wxTabbarHTML(){
@@ -246,11 +272,12 @@ function wxRender(){
   const v=document.getElementById("appview");
   let inner;
   if(wxChat==="moments")inner=wxMomentsHTML();
+  else if(wxChat==="profile")inner=wxProfileHTML();
   else if(wxChat)inner=wxChatHTML(wxFindChat(wxChat));
   else if(wxTab==="me")inner=wxMeHTML();
   else inner=`<div class="wx-nav">微信</div><div class="wx-body">${wxListHTML()}</div>`;
   v.innerHTML=`<div class="wx">${inner}${wxChat?"":wxTabbarHTML()}</div>`;
-  if(wxChat&&wxChat!=="moments"){
+  if(wxChat&&wxChat!=="moments"&&wxChat!=="profile"){
     const m=document.getElementById("chatMsgs");
     if(m)m.scrollTop=m.scrollHeight;
   }
@@ -265,6 +292,7 @@ function wxSend(){
 }
 function wxSetTab(t){wxTab=t;wxChat=null;wxRender();}
 function wxOpenChat(id){wxChat=id;wxRender();}
+function wxOpenProfile(){wxChat="profile";wxRender();}
 function wxOpenMoments(){wxChat="moments";wxRender();}
 function wxBack(){wxChat=null;wxRender();}
 </script>
