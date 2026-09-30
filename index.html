@@ -52,11 +52,16 @@ body{display:flex;justify-content:center;align-items:center;min-height:100vh}
 .wx-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:#888}
 .wx-tab.active{color:#07C160}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#EDEDED}
+.msg-row{display:flex;gap:8px;max-width:100%}
+.msg-row.me{flex-direction:row-reverse}
+.msg-row .wx-avatar{flex-shrink:0;border-radius:6px}
 .bubble{max-width:75%;padding:8px 12px;border-radius:8px;font-size:14px;line-height:1.4}
-.bubble.other{align-self:flex-start;background:#fff}
-.bubble.me{align-self:flex-end;background:#95EC69}
+.bubble.other{background:#fff}
+.bubble.me{background:#95EC69}
 .wx-note{align-self:center;background:#e2e2e2;color:#666;font-size:12px;padding:6px 10px;border-radius:6px;max-width:92%}
-.wx-input{height:50px;flex-shrink:0;background:#F7F7F7;border-top:1px solid #d9d9d9;display:flex;align-items:center;padding:0 12px;color:#999;font-size:13px}
+.wx-input{height:50px;flex-shrink:0;background:#F7F7F7;border-top:1px solid #d9d9d9;display:flex;align-items:center;gap:10px;padding:0 12px}
+.wx-input input{flex:1;height:32px;border:none;border-radius:6px;background:#fff;padding:0 10px;font-size:14px;outline:none}
+.wx-send{color:#07C160;font-size:14px;font-weight:500;flex-shrink:0}
 .wx-profile{padding:20px;background:#fff;display:flex;gap:14px;align-items:center}
 .wx-cover{height:130px;display:flex;align-items:center;justify-content:center;font-size:34px}
 .wx-groupbox{background:#fff;margin:10px 14px;border-radius:8px;padding:10px 12px;font-size:12px;color:#666}
@@ -198,18 +203,19 @@ function wxAvatarHTML(c,size){
   return `<div class="wx-avatar" style="width:${size}px;height:${size}px;background:${c.avatarBg}">${c.avatarE}</div>`;
 }
 function wxListHTML(){
-  const row=(c,pinned)=>`<div class="wx-item" onclick="wxOpenChat('${c.id}')">${wxAvatarHTML(c)}<div><div class="name">${pinned?"📌 ":""}${c.name}</div><div class="last">${c.msgs[c.msgs.length-1][1]}</div></div></div>`;
-  return `<div class="wx-sec">置顶</div>${wxData.pinned.map(c=>row(c,true)).join("")}
-  <div class="wx-sec">联系人</div>${[...wxData.others,...wxData.danger].map(c=>row(c,false)).join("")}
-  <div class="wx-sec">群聊</div>${wxData.groups.map(c=>row(c,false)).join("")}`;
+  const row=(c)=>`<div class="wx-item" onclick="wxOpenChat('${c.id}')">${wxAvatarHTML(c)}<div><div class="name">${c.name}</div><div class="last">${c.msgs[c.msgs.length-1][1]}</div></div></div>`;
+  return `<div class="wx-sec">置顶</div>${wxData.pinned.map(row).join("")}
+  <div class="wx-sec">联系人</div>${[...wxData.others,...wxData.danger].map(row).join("")}
+  <div class="wx-sec">群聊</div>${wxData.groups.map(row).join("")}`;
 }
 function wxChatHTML(c){
-  const bubbles=c.msgs.map(([s,t])=>`<div class="bubble ${s}">${t}</div>`).join("");
+  const me={avatarBg:wxData.profile.avatarBg,avatarE:wxData.profile.avatarE};
+  const bubbles=c.msgs.map(([s,t])=>`<div class="msg-row ${s}">${wxAvatarHTML(s==='me'?me:c,36)}<div class="bubble ${s}">${t}</div></div>`).join("");
   const notice=c.notice?`<div class="wx-note">群公告：${c.notice}</div>`:"";
   const note=c.note?`<div class="wx-note">${c.note}</div>`:"";
   return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span>${c.name}</div>
-  <div class="chat-msgs">${notice}${bubbles}${note}</div>
-  <div class="wx-input">输入信息…</div>`;
+  <div class="chat-msgs" id="chatMsgs">${notice}${bubbles}${note}</div>
+  <div class="wx-input"><input id="wxInputBox" placeholder="输入信息…" onkeydown="if(event.key==='Enter')wxSend()"><span class="wx-send" onclick="wxSend()">发送</span></div>`;
 }
 function wxMomentsHTML(){
   return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span>朋友圈</div>
@@ -244,6 +250,18 @@ function wxRender(){
   else if(wxTab==="me")inner=wxMeHTML();
   else inner=`<div class="wx-nav">微信</div><div class="wx-body">${wxListHTML()}</div>`;
   v.innerHTML=`<div class="wx">${inner}${wxChat?"":wxTabbarHTML()}</div>`;
+  if(wxChat&&wxChat!=="moments"){
+    const m=document.getElementById("chatMsgs");
+    if(m)m.scrollTop=m.scrollHeight;
+  }
+}
+function wxSend(){
+  const inp=document.getElementById("wxInputBox");
+  const t=inp.value.trim();
+  if(!t)return;
+  wxFindChat(wxChat).msgs.push(["me",t]);
+  wxRender();
+  document.getElementById("wxInputBox").focus();
 }
 function wxSetTab(t){wxTab=t;wxChat=null;wxRender();}
 function wxOpenChat(id){wxChat=id;wxRender();}
