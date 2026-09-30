@@ -67,9 +67,15 @@ body{display:flex;justify-content:center;align-items:center;min-height:100vh}
 .wx-cover .who{position:absolute;bottom:10px;right:14px;display:flex;align-items:center;gap:8px}
 .wx-cover .who span{color:#fff;font-size:15px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.4)}
 .wx-groupbox{background:#fff;margin:10px 14px;border-radius:8px;padding:10px 12px;font-size:12px;color:#666}
-.wx-limit-note{text-align:center;color:#999;font-size:12px;padding:16px 0}
 .wx-post{background:#fff;padding:14px;border-bottom:1px solid #eee}
-.wx-post .img{height:110px;border-radius:6px;background:linear-gradient(160deg,#ddd,#eee);display:flex;align-items:center;justify-content:center;font-size:32px;color:#999;margin-bottom:8px}
+.wx-post .cap{font-size:15px;line-height:1.5}
+.wx-post .img{height:90px;border-radius:6px;background:linear-gradient(160deg,#ddd,#eee);display:flex;align-items:center;justify-content:center;font-size:12.5px;color:#999;margin-top:8px;text-align:center;padding:0 10px}
+.wx-time{font-size:12px;color:#999;margin-top:8px}
+.wx-visible{font-size:12px;color:#576b95;margin-top:4px}
+.wx-social{background:#f7f7f7;border-radius:4px;margin-top:8px;padding:6px 8px;font-size:13px;line-height:1.7}
+.wx-likerow{color:#576b95}
+.wx-comment{color:#333}
+.wx-comment b{color:#576b95;font-weight:500}
 .wx-profile-hd{padding:20px;background:#fff;display:flex;gap:14px;align-items:center;border-bottom:8px solid #EDEDED}
 .wx-profile-hd .pname{font-size:19px;font-weight:600}
 .wx-profile-hd .pmeta{color:#999;font-size:12.5px;margin-top:4px}
@@ -196,13 +202,20 @@ const wxData={
   {id:"jiaren",name:"家人",avatarBg:"#8FBFA3",avatarE:"👪",notice:"成员：父母、玉娆、甄珩",msgs:[["me","[图片] 孩子的手（已关闭原图定位）"],["me","我很好，勿念。"]]}
  ],
  moments:[
-  {img:true,cap:"合欢花开了。"},
-  {img:true,cap:"一本翻到一半的书。"},
-  {img:true,cap:"孩子的手，没有正脸。"},
-  {img:true,cap:"雪后的宫墙。"},
-  {img:true,cap:"一杯茶。"},
-  {img:true,cap:"胧月画的一只鸟。"},
-  {img:false,cap:"（偶尔一句古诗，不直接对应当下处境）"}
+  {date:"2024年10月12日 08:16",cap:"回来了。",img:true,imgCap:"车窗外模糊的红墙",
+   likes:["皇上","苏培盛","端妃","敬妃"],
+   comments:[{who:"皇后",text:"回来便好。"},{who:"甄嬛",text:"劳娘娘挂念。",replyTo:"皇后"}]},
+  {date:"2023年6月21日 19:18",cap:"风从山中来。",img:true,imgCap:"凌云峰日落",
+   note:"十七点赞，两分钟后取消了点赞。"},
+  {date:"2022年3月29日 17:20",cap:"此后山高水长，各自珍重。",img:true,imgCap:"甘露寺外的山路",deleted:true},
+  {date:"2022年3月17日 05:42",cap:"愿她一生平安喜乐。",img:true,imgCap:"新生儿握着她手指的小手，没有露脸",
+   visibleTo:"仅家人、眉庄、敬妃、槿汐可见"},
+  {date:"2020年4月18日 22:31",cap:"春日迟迟。",img:true,imgCap:"御花园秋千的一角",
+   likes:["皇上"],
+   note:"华妃没有点赞，但次日让人打听了拍摄地点。"},
+  {date:"2019年9月13日 21:06",cap:"桂花开得正好。",img:true,imgCap:"甄府院中的桂花",
+   likes:["安陵容"],
+   comments:[{who:"沈眉庄",text:"明日见。"}]}
  ]
 };
 let wxTab="chat",wxChat=null;
@@ -227,6 +240,20 @@ function wxChatHTML(c){
   <div class="chat-msgs" id="chatMsgs">${notice}${bubbles}${note}</div>
   <div class="wx-input"><input id="wxInputBox" placeholder="输入信息…" onkeydown="if(event.key==='Enter')wxSend()"><span class="wx-send" onclick="wxSend()">发送</span></div>`;
 }
+function wxPostHTML(m){
+  const visible=m.visibleTo?`<div class="wx-visible">${m.visibleTo}</div>`:"";
+  const likes=m.likes&&m.likes.length?`<div class="wx-likerow">❤ ${m.likes.join("，")}</div>`:"";
+  const comments=(m.comments||[]).map(c=>`<div class="wx-comment">${c.replyTo?`<b>${c.who}</b> 回复 <b>${c.replyTo}</b>`:`<b>${c.who}</b>`}：${c.text}</div>`).join("");
+  const social=(likes||comments)?`<div class="wx-social">${likes}${comments}</div>`:"";
+  const note=m.note?`<div class="wx-note">${m.note}</div>`:"";
+  return `<div class="wx-post">
+    <div class="cap">${m.cap}</div>
+    ${visible}
+    ${m.img?`<div class="img">🖼️ ${m.imgCap}</div>`:""}
+    <div class="wx-time">${m.date}</div>
+    ${social}${note}
+  </div>`;
+}
 function wxMomentsHTML(){
   return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span>朋友圈</div>
   <div class="wx-body">
@@ -234,8 +261,7 @@ function wxMomentsHTML(){
     <div class="who">${wxAvatarHTML({avatarBg:wxData.profile.avatarBg,avatarE:wxData.profile.avatarE},40)}<span>${wxData.profile.name}</span></div>
   </div>
   <div class="wx-groupbox">朋友圈分组：${wxData.profile.groups.join(" / ")}</div>
-  ${wxData.moments.map(m=>`<div class="wx-post">${m.img?`<div class="img">🖼️</div>`:""}<div class="cap">${m.cap}</div></div>`).join("")}
-  <div class="wx-limit-note">只显示最近半年的朋友圈</div>
+  ${wxData.moments.filter(m=>!m.deleted).map(wxPostHTML).join("")}
   </div>`;
 }
 function wxProfileHTML(){
