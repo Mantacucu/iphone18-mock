@@ -27,9 +27,29 @@ body{display:flex;justify-content:center;align-items:center;min-height:100vh}
 .appview .big{font-size:70px}
 .appview h2{font-weight:600;font-size:20px}
 .appview p{font-size:13px;opacity:.7}
+.lock{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;color:#fff;overflow:hidden;transition:transform .5s ease,opacity .5s ease}
+.lock.unlocked{transform:translateY(-100%);opacity:0;pointer-events:none}
+.lockbg{position:absolute;inset:-20px;width:calc(100% + 40px);height:calc(100% + 40px);object-fit:cover;filter:blur(35px) brightness(.65);z-index:-1}
+.locktime{font-size:76px;font-weight:600;margin-top:80px;text-shadow:0 2px 12px rgba(0,0,0,.3)}
+.lockdate{font-size:16px;margin-top:2px;opacity:.9}
+.dots{display:flex;gap:14px;margin-top:46px}
+.dots span{width:12px;height:12px;border-radius:50%;border:1.5px solid #fff;background:transparent;transition:background .15s}
+.dots span.filled{background:#fff}
+.lockhint{font-size:13px;opacity:.75;margin-top:14px}
+.keypad{margin-top:24px;display:grid;grid-template-columns:repeat(3,70px);gap:16px}
+.key{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:27px}
+.key.empty{background:transparent;font-size:12px;opacity:.8}
 </style></head>
 <body>
 <div class="phone"><div class="screen">
+  <div class="lock" id="lock">
+    <img class="lockbg" src="wallpaper.jpg">
+    <div class="locktime">9:41</div>
+    <div class="lockdate">9月30日 星期三</div>
+    <div class="dots" id="dots"></div>
+    <div class="lockhint">输入密码</div>
+    <div class="keypad" id="keypad"></div>
+  </div>
   <div class="island"></div>
   <div class="status"><span>9:41</span><span>🔋 100%</span></div>
   <div class="grid" id="grid"></div>
@@ -38,6 +58,22 @@ body{display:flex;justify-content:center;align-items:center;min-height:100vh}
   <div class="home" onclick="closeApp()"></div>
 </div></div>
 <script>
+document.getElementById("dots").innerHTML=Array(6).fill('<span></span>').join("");
+const dotEls=[...document.querySelectorAll("#dots span")];
+let entered=[];
+function keyHTML(k){
+  if(k==="emg")return `<div class="key empty" onclick="keyTap('emg')">紧急<br>呼叫</div>`;
+  if(k==="del")return `<div class="key empty" onclick="keyTap('del')">⌫</div>`;
+  return `<div class="key" onclick="keyTap('${k}')">${k}</div>`;
+}
+document.getElementById("keypad").innerHTML=["1","2","3","4","5","6","7","8","9","emg","0","del"].map(keyHTML).join("");
+function keyTap(k){
+  if(k==="emg")return;
+  if(k==="del"){entered.pop();}
+  else if(entered.length<6){entered.push(k);}
+  dotEls.forEach((d,i)=>d.classList.toggle("filled",i<entered.length));
+  if(entered.length===6)setTimeout(()=>document.getElementById("lock").classList.add("unlocked"),250);
+}
 const U="https://is1-ssl.mzstatic.com/image/thumb/";
 const apps=[
 {e:"💬",n:"信息",c:"#34C759",u:U+"Purple211/v4/08/e8/a7/08e8a793-2b70-af16-e7d8-78877235d3a5/messagesCalistoga-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
