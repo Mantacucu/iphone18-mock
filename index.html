@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8">
+<title>iPhone 18 Pro</title>
+<style>
+*{margin:0;box-sizing:border-box;font-family:-apple-system,sans-serif}
+body{background:#111;display:flex;justify-content:center;align-items:center;height:100vh}
+.phone{width:390px;height:844px;background:#000;border-radius:60px;padding:12px;box-shadow:0 0 0 2px #333,0 30px 60px rgba(0,0,0,.6)}
+.screen{width:100%;height:100%;border-radius:48px;overflow:hidden;position:relative;
+  background:linear-gradient(160deg,#ff9a56,#ff6a88,#845ec2)}
+.island{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;z-index:10}
+.status{position:absolute;top:16px;left:32px;right:32px;display:flex;justify-content:space-between;color:#fff;font-size:15px;font-weight:600}
+.grid{position:absolute;top:90px;left:0;right:0;padding:0 22px;display:grid;grid-template-columns:repeat(4,1fr);gap:22px 14px}
+.app{display:flex;flex-direction:column;align-items:center;gap:6px}
+.icon{width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 3px 6px rgba(0,0,0,.25)}
+.app span{color:#fff;font-size:11px;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.dock{position:absolute;bottom:20px;left:14px;right:14px;height:90px;background:rgba(255,255,255,.18);backdrop-filter:blur(20px);border-radius:32px;display:flex;justify-content:space-around;align-items:center}
+.home{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:140px;height:5px;background:#fff;border-radius:3px;opacity:.9;cursor:pointer;z-index:20}
+.appview{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#fff;z-index:15;transition:transform .25s}
+.appview.hidden{transform:translateY(100%)}
+.appview .big{font-size:70px}
+.appview h2{font-weight:600;font-size:20px}
+.appview p{font-size:13px;opacity:.7}
+</style></head>
+<body>
+<div class="phone"><div class="screen">
+  <div class="island"></div>
+  <div class="status"><span>9:41</span><span>🔋 100%</span></div>
+  <div class="grid" id="grid"></div>
+  <div class="dock" id="dock"></div>
+  <div class="appview hidden" id="appview"></div>
+  <div class="home" onclick="closeApp()"></div>
+</div></div>
+<script>
+const U="https://is1-ssl.mzstatic.com/image/thumb/";
+const apps=[
+{e:"💬",n:"信息",c:"#34C759",u:U+"Purple211/v4/08/e8/a7/08e8a793-2b70-af16-e7d8-78877235d3a5/messagesCalistoga-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"🦘",n:"美团",c:"#FFD100",u:U+"Purple211/v4/f9/7c/56/f97c56ea-ddcb-7fe0-66aa-97d5f481ef62/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-85-220.png/512x512bb.jpg"},
+{e:"📕",n:"小红书",c:"#FF2442",u:U+"Purple211/v4/59/66/9d/59669dea-04c2-e90f-547f-32fefaf9d44a/AppIcon-0-0-1x_U007epad-0-11-0-85-220.png/512x512bb.jpg"},
+{e:"🖼️",n:"相册",c:"#FA8231",u:U+"Purple221/v4/e6/7d/05/e67d0525-e3d8-666d-0a42-ff0beb5d3248/photosCalistoga-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"🎵",n:"网易云音乐",c:"#C20C0C",u:U+"Purple211/v4/31/fc/91/31fc91b8-c30b-e00f-2add-0aa3f12322b3/appIconNew-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"🛒",n:"淘宝",c:"#FF4400",u:U+"Purple221/v4/01/f9/04/01f90491-bd6c-1458-da24-aa644bb83154/AppIcon-0-0-1x_U007emarketing-0-10-0-85-220.png/512x512bb.jpg"},
+{e:"⭐",n:"大众点评",c:"#FF9C00",u:U+"Purple211/v4/72/27/f0/7227f0d5-e50d-d756-8508-1b112cd8ab7c/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg"},
+{e:"📍",n:"高德地图",c:"#1677FF",u:U+"Purple221/v4/3d/0d/b7/3d0db700-cb0f-62e2-aa78-6e7a7341cba2/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg"},
+{e:"🏃",n:"Keep",c:"#1A1A1A",u:U+"Purple211/v4/0d/12/09/0d1209da-4d07-e1bb-02c6-d82001f10e36/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"❤️",n:"健康",c:"#FFFFFF",u:U+"Purple211/v4/8d/d4/fa/8dd4fae0-bba5-338b-431d-a72be194b67c/healthCalistoga-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"📸",n:"Instagram",c:"#C13584",u:U+"Purple221/v4/f5/7f/2c/f57f2c00-2dff-4704-501b-ab6849c6277d/Prod-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg"},
+{e:"👍",n:"Facebook",c:"#1877F2",u:U+"Purple211/v4/4a/d2/9f/4ad29fa6-ac86-66b9-3c9e-2c9950173431/Icon-Production-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg"},
+{e:"💬",n:"WhatsApp",c:"#25D366",u:U+"Purple211/v4/54/08/2d/54082dca-2973-b8b7-5481-a6299244b8c6/AppIcon-0-0-1x_U007epad-0-0-0-1-0-0-sRGB-0-85-220.png/512x512bb.jpg"},
+{e:"👽",n:"Reddit",c:"#FF4500",u:U+"Purple211/v4/d4/ea/a5/d4eaa5bf-752c-c993-d8a3-e8c7e66a9f34/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"🌳",n:"豆瓣",c:"#2D963D",u:U+"Purple211/v4/79/54/c5/7954c588-8484-b8cb-747b-9f94e897ac22/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/512x512bb.jpg"},
+{e:"🕊️",n:"飞书",c:"#3370FF",u:U+"Purple211/v4/94/f8/ca/94f8cad1-6fe1-9258-adc2-d01d31ad92fa/AppIcon-0-0-1x_U007epad-0-0-0-1-0-0-85-220.png/512x512bb.jpg"},
+{e:"🌍",n:"Chrome",c:"#4285F4",u:U+"Purple211/v4/de/1f/c9/de1fc9f1-2ce1-2c7c-e89c-8e033feefb6f/AppIcon-0-0-1x_U007epad-0-0-0-1-0-0-sRGB-85-220.png/512x512bb.jpg"},
+{e:"🤖",n:"ChatGPT",c:"#10A37F",u:U+"Purple211/v4/eb/c5/b3/ebc5b3a0-618f-6c84-492f-05d113191648/AppIcon-0-0-1x_U007epad-0-0-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"🐋",n:"DeepSeek",c:"#4D6BFE",u:U+"Purple221/v4/23/6c/e0/236ce069-0ae9-9495-d893-c7caf0a181cd/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg"},
+{e:"🫘",n:"豆包",c:"#2469F6",u:U+"Purple211/v4/a5/c3/af/a5c3afec-9121-afb2-6011-e6fd8796fdc4/AppIcon-0-0-1x_U007epad-0-8-0-sRGB-85-220.png/512x512bb.jpg"},
+{e:"✨",n:"Claude",c:"#D97757",u:U+"Purple221/v4/1c/89/a5/1c89a53e-032b-cb5a-b1e5-e3227c749811/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg"},
+{e:"🎭",n:"Meta Muse",c:"#0668E1",u:U+"Purple211/v4/73/72/9b/73729ba4-8f07-dabc-9e4c-07ee3d667630/HatchAppIconPublic-0-0-1x_U007ephone-0-1-0-sRGB-0-85-220.png/512x512bb.jpg"},
+{e:"📝",n:"备忘录",c:"#FFD426",u:U+"Purple221/v4/bc/b1/1c/bcb11c9d-ea61-089f-3b84-0f8911dd175d/notesCalistoga-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg"},
+{e:"🎙️",n:"录音",c:"#F0433D",u:U+"Purple211/v4/34/f3/34/34f334c0-e174-5d50-4940-99e300eeba2b/voice.memosCalistoga-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"📅",n:"日历",c:"#FFFFFF",u:U+"Purple211/v4/7e/14/b0/7e14b01c-c9f8-701e-1e78-201a4ff41490/calendarCalistoga-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"}];
+const dock=[
+{e:"💬",n:"微信",c:"#07C160",u:U+"Purple221/v4/61/70/2e/61702e05-0531-165f-5cd3-012c8b5b3b20/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-0-85-220.png/512x512bb.jpg"},
+{e:"📷",n:"相机",c:"#2E2E2E",u:U+"Purple211/v4/49/05/51/490551fe-c605-be47-63b4-12ee4f0cccf9/cameraCalistoga-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"🧭",n:"Safari",c:"#1E88E5",u:U+"Purple211/v4/12/70/31/1270312d-bd96-dd95-ac83-3b7e61721c5d/safariCalistoga-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"},
+{e:"💰",n:"支付宝",c:"#1677FF",u:U+"Purple211/v4/49/83/3c/49833c6e-247b-4abd-bc82-459887acd961/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg"}];
+function iconHTML(a,kind,i){
+  const bg=a.u?`background-image:url('${a.u}');background-size:cover`:`background:${a.c}`;
+  return `<div class="app" onclick="openApp('${kind}',${i})"><div class="icon" style="${bg}">${a.u?"":a.e}</div>${kind==='g'?`<span>${a.n}</span>`:""}</div>`;
+}
+document.getElementById("grid").innerHTML=apps.map((a,i)=>iconHTML(a,'g',i)).join("");
+document.getElementById("dock").innerHTML=dock.map((a,i)=>iconHTML(a,'d',i)).join("");
+function openApp(kind,i){
+  const a=(kind==='g'?apps:dock)[i];
+  const v=document.getElementById("appview");
+  v.style.background=a.c;
+  v.innerHTML=a.u?`<div class="big" style="width:100px;height:100px;border-radius:24px;background-image:url('${a.u}');background-size:cover"></div><h2>${a.n}</h2><p>敬请期待</p>`
+              :`<div class="big">${a.e}</div><h2>${a.n}</h2><p>敬请期待</p>`;
+  v.classList.remove("hidden");
+}
+function closeApp(){document.getElementById("appview").classList.add("hidden");}
+</script>
+</body></html>
