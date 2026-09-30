@@ -82,6 +82,9 @@ body{display:flex;justify-content:center;align-items:center;min-height:100vh}
 .wx-profile-hd .pmeta{color:#999;font-size:12.5px;margin-top:4px}
 .wx-row{background:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f0f0f0}
 .wx-cover-mini{width:44px;height:44px;border-radius:4px}
+.psign{color:#999;font-size:13px;margin-top:6px}
+.wx-arrow{color:#ccc;font-size:16px}
+.wx-empty{text-align:center;color:#999;font-size:13px;padding:40px 0}
 </style></head>
 <body>
 <div class="phone"><div class="screen">
@@ -159,7 +162,7 @@ function openApp(kind,i){
   const a=(kind==='g'?apps:dock)[i];
   const v=document.getElementById("appview");
   v.classList.remove("hidden");
-  if(a.n==="微信"){wxTab="chat";wxChat=null;wxRender();return;}
+  if(a.n==="微信"){wxTab="chat";wxScreen=null;wxSubject=null;wxFrom=null;wxRender();return;}
   v.style.background=a.c;
   v.innerHTML=a.u?`<div class="big" style="width:100px;height:100px;border-radius:24px;background-image:url('${a.u}');background-size:cover"></div><h2>${a.n}</h2><p>敬请期待</p>`
               :`<div class="big">${a.e}</div><h2>${a.n}</h2><p>敬请期待</p>`;
@@ -172,13 +175,12 @@ const wxData={
    coverBg:"linear-gradient(180deg,#8FA6BA 0%,#C9D6DE 45%,#EDEFF0 100%)",
    groups:["皇上可见","家人可见","后宫可见","永寿宫可见","不给皇后看","不给祺贵人看","不给安陵容看"]},
  pinned:[
-  {id:"jinxi",name:"槿汐",avatarImg:"avatars/jinxi.jpg",avatarBg:"#8FBFA3",avatarE:"🍵",
+  {id:"jinxi",name:"槿汐",remark:"槿汐",sign:"诸事妥当。",avatarImg:"avatars/jinxi.jpg",avatarBg:"#8FBFA3",avatarE:"🍵",
    msgs:[["time","2019年9月16日 06:48"],["other","小主今日第一次去请安，衣裳已经备好。"],["me","不必太过鲜亮。"],["other","明白，选了月白色。"],
    ["time","2020年11月3日 23:17"],["other","小主今晚一直没有用膳。"],["me","吃不下。"],["other","奴婢让厨房温着，您夜里若醒了，再吃一点。"],
    ["time","2022年3月29日 14:06"],["me","你可以留在宫里，不必陪我出去。"],["other","娘娘在哪里，槿汐便在哪里。"],
    ["time","2024年10月12日 05:54"],["other","车已经到了。孩子们还睡着。"],["me","不要叫醒他们。"],["other","娘娘准备好了吗？"],["me","走吧。"],
-   ["time","2025年2月8日 22:13"],["other","明日请安的名单已经发给您。"],["me","看过了。祺贵人也去？"],["other","是。皇后娘娘特意让人通知的。"],["me","知道了。"]],
-   note:"暗语（仅甄嬛可见）：茶凉了＝暂缓 / 花房送错了花＝有眼线 / 六阿哥睡下了＝可谈私事 / 旧衣已处理＝记录已清除 / 今日风大＝只发文字"},
+   ["time","2025年2月8日 22:13"],["other","明日请安的名单已经发给您。"],["me","看过了。祺贵人也去？"],["other","是。皇后娘娘特意让人通知的。"],["me","知道了。"]]},
   {id:"meizhuang",name:"眉姐姐",avatarImg:"avatars/meizhuang.jpg",avatarBg:"#C98FA0",avatarE:"🪷",
    msgs:[["me","惠宁今天肯喝药了吗？"],["me","我让厨房炖了藕粉桂花糖糕，晚些给你送去。"],["other","[视频] 女儿的视频"],["me","你别总劝我忍，你自己倒比谁都倔。"],["me","今日见你气色不好，可是昨夜又没睡？"],["other","温实初今天讲话又像病历。"]],
    note:"不说真名：那边＝皇后 / 景仁宫那位＝安陵容 / 从前唱歌的妹妹＝安陵容 / 今日来过的人＝皇上"},
@@ -223,26 +225,34 @@ const wxData={
    comments:[{who:"沈眉庄",text:"明日见。"}]}
  ]
 };
-let wxTab="chat",wxChat=null;
+let wxTab="chat",wxScreen=null,wxSubject=null,wxFrom=null;
 function wxFindChat(id){return [...wxData.pinned,...wxData.others,...wxData.danger,...wxData.groups].find(c=>c.id===id);}
+function wxSubjectInfo(id){
+  if(id==="self"){
+    const p=wxData.profile;
+    return {name:p.name,sign:p.sign,wxid:p.wxid,region:p.region,avatarImg:p.avatarImg,avatarBg:p.avatarBg,avatarE:p.avatarE,coverBg:p.coverBg,isSelf:true};
+  }
+  return {...wxFindChat(id),isSelf:false};
+}
 function wxAvatarHTML(c,size){
   size=size||44;
   if(c.avatarImg)return `<div class="wx-avatar" style="width:${size}px;height:${size}px;background-image:url('${c.avatarImg}');background-size:cover"></div>`;
   if(c.noAvatar)return `<div class="wx-avatar" style="width:${size}px;height:${size}px;background:#ccc"></div>`;
-  return `<div class="wx-avatar" style="width:${size}px;height:${size}px;background:${c.avatarBg}">${c.avatarE}</div>`;
+  return `<div class="wx-avatar" style="width:${size}px;height:${size}px;background:${c.avatarBg};font-size:${Math.round(size*0.5)}px">${c.avatarE}</div>`;
 }
 function wxListHTML(){
-  const row=(c)=>`<div class="wx-item" onclick="wxOpenChat('${c.id}')">${wxAvatarHTML(c)}<div><div class="name">${c.name}</div><div class="last">${c.msgs[c.msgs.length-1][1]}</div></div></div>`;
-  return `<div class="wx-sec">置顶</div>${wxData.pinned.map(row).join("")}
-  <div class="wx-sec">联系人</div>${[...wxData.others,...wxData.danger].map(row).join("")}
-  <div class="wx-sec">群聊</div>${wxData.groups.map(row).join("")}`;
+  const personRow=(c)=>`<div class="wx-item" onclick="wxOpenProfile('${c.id}')">${wxAvatarHTML(c)}<div><div class="name">${c.name}</div><div class="last">${c.msgs[c.msgs.length-1][1]}</div></div></div>`;
+  const groupRow=(c)=>`<div class="wx-item" onclick="wxOpenChat('${c.id}')">${wxAvatarHTML(c)}<div><div class="name">${c.name}</div><div class="last">${c.msgs[c.msgs.length-1][1]}</div></div></div>`;
+  return `<div class="wx-sec">置顶</div>${wxData.pinned.map(personRow).join("")}
+  <div class="wx-sec">联系人</div>${[...wxData.others,...wxData.danger].map(personRow).join("")}
+  <div class="wx-sec">群聊</div>${wxData.groups.map(groupRow).join("")}`;
 }
 function wxChatHTML(c){
   const me={avatarBg:wxData.profile.avatarBg,avatarE:wxData.profile.avatarE};
   const bubbles=c.msgs.map(([s,t])=>s==='time'?`<div class="wx-time-divider">${t}</div>`:`<div class="msg-row ${s}">${wxAvatarHTML(s==='me'?me:c,36)}<div class="bubble ${s}">${t}</div></div>`).join("");
   const notice=c.notice?`<div class="wx-note">群公告：${c.notice}</div>`:"";
   const note=c.note?`<div class="wx-note">${c.note}</div>`:"";
-  return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span>${c.name}</div>
+  return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span><span onclick="wxOpenProfile('${c.id}')">${c.name}</span></div>
   <div class="chat-msgs" id="chatMsgs">${notice}${bubbles}${note}</div>
   <div class="wx-input"><input id="wxInputBox" placeholder="输入信息…" onkeydown="if(event.key==='Enter')wxSend()"><span class="wx-send" onclick="wxSend()">发送</span></div>`;
 }
@@ -260,34 +270,45 @@ function wxPostHTML(m){
     ${social}${note}
   </div>`;
 }
-function wxMomentsHTML(){
+function wxMomentsHTML(id){
+  const s=wxSubjectInfo(id);
+  const posts=s.isSelf?wxData.moments.filter(m=>!m.deleted):[];
+  const body=posts.length?posts.map(wxPostHTML).join(""):`<div class="wx-empty">暂无朋友圈内容</div>`;
   return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span>朋友圈</div>
   <div class="wx-body">
-  <div class="wx-cover" style="background:${wxData.profile.coverBg}">
-    <div class="who">${wxAvatarHTML({avatarBg:wxData.profile.avatarBg,avatarE:wxData.profile.avatarE},40)}<span>${wxData.profile.name}</span></div>
+  <div class="wx-cover" style="background:${s.coverBg||'linear-gradient(160deg,#ddd,#eee)'}">
+    <div class="who">${wxAvatarHTML(s,40)}<span>${s.remark||s.name}</span></div>
   </div>
-  <div class="wx-groupbox">朋友圈分组：${wxData.profile.groups.join(" / ")}</div>
-  ${wxData.moments.filter(m=>!m.deleted).map(wxPostHTML).join("")}
+  ${s.isSelf?`<div class="wx-groupbox">朋友圈分组：${wxData.profile.groups.join(" / ")}</div>`:""}
+  ${body}
   </div>`;
 }
-function wxProfileHTML(){
+function wxProfileHTML(id){
+  const s=wxSubjectInfo(id);
+  const metaHTML=s.isSelf
+    ?`<div class="pmeta">微信号：${s.wxid}</div><div class="pmeta">地区：${s.region}</div>`
+    :(s.remark?`<div class="pmeta">昵称：${s.name}</div>`:"");
+  const signHTML=s.sign?`<div class="psign">${s.sign}</div>`:"";
+  const momentsRow=`<div class="wx-row" onclick="wxOpenMoments('${id}')"><span>朋友圈</span><div class="wx-cover-mini" style="background:${s.coverBg||'linear-gradient(160deg,#ddd,#eee)'}"></div></div>`;
+  const msgRow=s.isSelf?"":`<div class="wx-row" onclick="wxOpenChat('${id}')"><span>发消息</span><span class="wx-arrow">›</span></div>`;
   return `<div class="wx-nav"><span class="wx-back" onclick="wxBack()">‹</span></div>
   <div class="wx-body">
   <div class="wx-profile-hd">
-    <div class="wx-avatar" style="width:64px;height:64px;font-size:32px;background:${wxData.profile.avatarBg}">${wxData.profile.avatarE}</div>
+    ${wxAvatarHTML(s,64)}
     <div class="wx-profile-info">
-      <div class="pname">${wxData.profile.name}</div>
-      <div class="pmeta">微信号：${wxData.profile.wxid}</div>
-      <div class="pmeta">地区：${wxData.profile.region}</div>
+      <div class="pname">${s.remark||s.name}</div>
+      ${metaHTML}
+      ${signHTML}
     </div>
   </div>
-  <div class="wx-row" onclick="wxOpenMoments()"><span>朋友圈</span><div class="wx-cover-mini" style="background:${wxData.profile.coverBg}"></div></div>
+  ${momentsRow}
+  ${msgRow}
   </div>`;
 }
 function wxMeHTML(){
   return `<div class="wx-nav">我</div>
   <div class="wx-body">
-  <div class="wx-profile" onclick="wxOpenProfile()">
+  <div class="wx-profile" onclick="wxOpenProfile('self')">
     <div class="wx-avatar" style="width:60px;height:60px;font-size:30px;background:${wxData.profile.avatarBg}">${wxData.profile.avatarE}</div>
     <div><div style="font-size:18px;font-weight:600">${wxData.profile.name}</div><div style="color:#999;font-size:13px;margin-top:4px">微信号：${wxData.profile.wxid}</div></div>
   </div>
@@ -296,20 +317,20 @@ function wxMeHTML(){
 function wxTabbarHTML(){
   return `<div class="wx-tabbar">
     <div class="wx-tab ${wxTab==='chat'?'active':''}" onclick="wxSetTab('chat')">💬<span>微信</span></div>
-    <div class="wx-tab" onclick="wxOpenMoments()">🔍<span>发现</span></div>
+    <div class="wx-tab" onclick="wxOpenMoments('self')">🔍<span>发现</span></div>
     <div class="wx-tab ${wxTab==='me'?'active':''}" onclick="wxSetTab('me')">🙂<span>我</span></div>
   </div>`;
 }
 function wxRender(){
   const v=document.getElementById("appview");
   let inner;
-  if(wxChat==="moments")inner=wxMomentsHTML();
-  else if(wxChat==="profile")inner=wxProfileHTML();
-  else if(wxChat)inner=wxChatHTML(wxFindChat(wxChat));
+  if(wxScreen==="moments")inner=wxMomentsHTML(wxSubject);
+  else if(wxScreen==="profile")inner=wxProfileHTML(wxSubject);
+  else if(wxScreen==="chat")inner=wxChatHTML(wxFindChat(wxSubject));
   else if(wxTab==="me")inner=wxMeHTML();
   else inner=`<div class="wx-nav">微信</div><div class="wx-body">${wxListHTML()}</div>`;
-  v.innerHTML=`<div class="wx">${inner}${wxChat?"":wxTabbarHTML()}</div>`;
-  if(wxChat&&wxChat!=="moments"&&wxChat!=="profile"){
+  v.innerHTML=`<div class="wx">${inner}${wxScreen?"":wxTabbarHTML()}</div>`;
+  if(wxScreen==="chat"){
     const m=document.getElementById("chatMsgs");
     if(m)m.scrollTop=m.scrollHeight;
   }
@@ -318,14 +339,14 @@ function wxSend(){
   const inp=document.getElementById("wxInputBox");
   const t=inp.value.trim();
   if(!t)return;
-  wxFindChat(wxChat).msgs.push(["me",t]);
+  wxFindChat(wxSubject).msgs.push(["me",t]);
   wxRender();
   document.getElementById("wxInputBox").focus();
 }
-function wxSetTab(t){wxTab=t;wxChat=null;wxRender();}
-function wxOpenChat(id){wxChat=id;wxRender();}
-function wxOpenProfile(){wxChat="profile";wxRender();}
-function wxOpenMoments(){wxChat="moments";wxRender();}
-function wxBack(){wxChat=null;wxRender();}
+function wxSetTab(t){wxTab=t;wxScreen=null;wxSubject=null;wxFrom=null;wxRender();}
+function wxOpenChat(id){wxFrom=wxScreen;wxSubject=id;wxScreen="chat";wxRender();}
+function wxOpenProfile(id){wxFrom=wxScreen;wxSubject=id;wxScreen="profile";wxRender();}
+function wxOpenMoments(id){wxFrom=wxScreen;wxSubject=id;wxScreen="moments";wxRender();}
+function wxBack(){wxScreen=wxFrom;wxFrom=null;wxRender();}
 </script>
 </body></html>
